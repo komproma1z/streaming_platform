@@ -8,9 +8,8 @@
       <BeforeStream 
         v-else
         :getCurrentStream="getCurrentStream"
-        :getTimeLeft="getTimeLeft"
         :volume="volume"
-        :imageSrc="imageSrc"
+        :fetchData="fetchData"
         :key="rerender_trigger"
       />
     </div>
@@ -31,7 +30,6 @@ export default {
       deviceCurrentStreamID: null,
       currentTime: this.$moment().toISOString(),
       dataLoaded: false,
-      fetching: null,
       rerender_trigger: 0,
     };
   },
@@ -54,53 +52,11 @@ export default {
     compareTime: function(currentTime, streamTime) {
       return currentTime > streamTime;
     },
-    getTimeLeft: function(currentTime, streamTime) {
-      let timeLeft = this.$moment(streamTime).diff(currentTime);
-      let minutes_word;
-      let hours_word;
-      const formatted = this.$moment.duration(timeLeft);
-      let minutes_string = formatted.minutes().toString();
-      let hours_string = formatted.hours().toString();
-      switch (minutes_string[minutes_string.length-1]) {
-        case '1': minutes_word = 'минута';
-        break;
-        case '2': minutes_word = 'минуты';
-        break;
-        case '3': minutes_word = 'минуты';
-        break;
-        case '4': minutes_word = 'минуты';
-        break;
-        default: minutes_word = 'минут';
-        break;
-      }
-      switch (hours_string[hours_string.length-1]) {
-        case '1': hours_word = 'час';
-        break;
-        case '2': minutes_word = 'часа';
-        break;
-        case '3': minutes_word = 'часа';
-        break;
-        case '4': minutes_word = 'часа';
-        break;
-        default: hours_word = 'часов';
-        break;
-      }
-      return `${formatted.hours()+24*formatted.days()} ${hours_word} ${formatted.minutes()} ${minutes_word}`;
-    }
   },
   created() {
     this.fetchData();
-    this.fetching = setInterval(() => this.fetchData(), 10000);
-  },
-  beforeDestroy() {
-    clearInterval(this.fetching);
   },
   computed: {
-    imageSrc: {
-      get: function() {
-        return this.getCurrentStream().image;
-      }
-    },
     videoSrc: {
       get: function() {
         return this.getCurrentStream().video_link;
